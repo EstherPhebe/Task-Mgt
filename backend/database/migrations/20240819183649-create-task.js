@@ -16,13 +16,23 @@ module.exports = {
         type: Sequelize.STRING
       },
       priority: {
-        type: Sequelize.ENUM('Critical', 'High', 'Medium', 'Low')
+        type: Sequelize.ENUM('Critical', 'High', 'Medium', 'Low'),
+        defaultValue: 'Low'
       },
       dueBy: {
-        type: Sequelize.DATE
+        type: Sequelize.DATEONLY
       },
       status: {
-        type: Sequelize.ENUM('To-Do', 'Pending', 'Complete', 'Low')
+        type: Sequelize.ENUM('To-Do', 'Pending', 'Complete'),
+        defaultValue: 'To-Do'
+      },
+      userId: {
+        allowNull:false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        }
       },
       createdAt: {
         allowNull: false,

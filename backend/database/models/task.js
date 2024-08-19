@@ -7,15 +7,15 @@ module.exports = (sequelize, DataTypes) => {
     description: {
       type:DataTypes.STRING
     },
-    dueDate: {
-      type: DataTypes.DATE
+    dueBy: {
+      type: DataTypes.DATEONLY
     },
     priority: {
       type: DataTypes.ENUM('Critical', 'High', 'Medium', 'Low'),
       defaultValue: 'Low',
     },
     status: {
-      type: DataTypes.ENUM('To-Do', 'Pending', 'Complete', 'Low'),
+      type: DataTypes.ENUM('To-Do', 'Pending', 'Complete'),
       defaultValue: 'To-Do',
     }
   });

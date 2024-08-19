@@ -18,6 +18,14 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
+      TaskId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Tasks',
+          key: id
+        }
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

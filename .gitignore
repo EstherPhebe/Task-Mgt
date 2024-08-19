@@ -1,4 +1,5 @@
 .env
 .sequelizerc
 node_modules/
+/node_modules
 debug.log
