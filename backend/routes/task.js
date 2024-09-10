@@ -6,10 +6,6 @@ const { Task  } = db.sequelize.models
 
 const router = express.Router();
 
-router.get('/alltask', async (req, res) => {
-  const all = await Task.findAll()
-  res.json(all)
-})
 // Create Task
 router.post('/tasks', auth, async (req, res) => {
   const { title, description, dueBy, status, priority } = req.body;
@@ -32,6 +28,7 @@ router.post('/tasks', auth, async (req, res) => {
 router.get('/tasks', auth, async (req, res) => {
   try {
     const tasks = await Task.findAll({ where: { userId: req.userId } });
+    console.log(tasks[0].dataValues)
     res.json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -54,7 +51,11 @@ router.get('/tasks/s/date', auth, async (req, res) => {
 router.get('/tasks/:id', auth, async (req, res) => {
   const { id } = req.params
   try{
-    const task = await Task.findOne({ where: { userId: req.userId, id: id }});
+    const task = await Task.findOne({ where: {  id: id }});
+    console.log(`${req.userId} - ${task.userId}`)
+    if (req.userId !== task.userId) {
+      return res.status(401).json({ error: "Unauthorized"})
+    }
     res.json(task);
   } catch (err) {
     res.status(400).json({ err: 'Task not found'});
@@ -66,6 +67,7 @@ router.get('/tasks/s/:priority', auth, async (req, res) => {
   const { priority } = req.params
   try {
     const tasks = await Task.findAll({ where: { userId: req.userId, priority: priority}})
+    res.json(tasks)
   } catch(err) {
     res.status(400).json({ error: 'Unable to get tasks' });
   }
@@ -92,7 +94,10 @@ router.patch('/tasks/:id', auth, async (req, res) => {
 router.delete('/tasks/:id', auth, async (req, res) => {
   const { id } = req.params
   try{
-    const task = await Task.findOne({ where: { userId: req.userId, id: id }});
+    const task = await Task.findOne({ where: { id: id }});
+    if (req.userId !== task.userId) {
+      return res.status(401).json({ error: "Unauthorized"})
+    }
     await task.destroy()
     res.json({ note: 'Task deleted'});
   } catch (err) {
