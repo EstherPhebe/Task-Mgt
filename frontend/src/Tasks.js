@@ -1,13 +1,7 @@
 import axios from "axios";
 
 function Tasks() {
-    const getTasks = () {
-        axios.get()
-    }
-    return (
-        <>
-        </>
-    );
+  return <></>;
 }
 
 export default Tasks;
