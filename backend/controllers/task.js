@@ -2,24 +2,25 @@ const express = require("express");
 const db = require("../database/models");
 const auth = require("../middleware/auth");
 
-const { User, Task } = db.sequelize.models;
+const { user, task } = db.sequelize.models;
 
 const router = express.Router();
 
 // Create Task
 router.post("/tasks", auth, async (req, res) => {
-  const { title, description, dueBy, status, priority } = req.body;
+  const { title, description, due_by, status, priority } = req.body;
   try {
-    const task = await Task.create({
+    const newTask = await task.create({
       title,
       description,
-      dueBy,
+      due_by,
       priority,
       status,
-      userId: req.userId,
+      user_id: req.user_id,
     });
-    res.status(201).json(task);
+    res.status(201).json(newTask);
   } catch (err) {
+    console.log(err);
     res.status(400).json({ error: "Unable to create task" });
   }
 });
@@ -27,7 +28,7 @@ router.post("/tasks", auth, async (req, res) => {
 // Get all tasks for a User
 router.get("/tasks", auth, async (req, res) => {
   try {
-    const tasks = await Task.findAll({ where: { userId: req.userId } });
+    const tasks = await task.findAll({ where: { user_id: req.user_id } });
     console.log(tasks[0].dataValues);
     res.json(tasks);
   } catch (err) {
@@ -38,9 +39,9 @@ router.get("/tasks", auth, async (req, res) => {
 //Get all tasks sorted by date
 router.get("/tasks/s/date", auth, async (req, res) => {
   try {
-    const tasks = await Task.findAll({
-      order: [["dueBy", "ASC"]],
-      where: { userId: req.userId },
+    const tasks = await task.findAll({
+      order: [["due_by", "ASC"]],
+      where: { user_id: req.user_id },
     });
     res.json(tasks);
   } catch (err) {
@@ -52,41 +53,40 @@ router.get("/tasks/s/date", auth, async (req, res) => {
 router.get("/tasks/:id", auth, async (req, res) => {
   const { id } = req.params;
   try {
-    const task = await Task.findOne({ where: { id: id } });
-    console.log(`${req.userId} - ${task.userId}`);
-    if (req.userId !== task.userId) {
+    const singleTask = await task.findOne({ where: { id: id } });
+    if (req.user_id !== singleTask.user_id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    res.json(task);
+    res.json(singleTask);
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
   }
 });
 
-//Get all tasks by priority
-router.get("/tasks/s/:priority", auth, async (req, res) => {
-  const { priority } = req.params;
-  try {
-    const tasks = await Task.findAll({
-      where: { userId: req.userId, priority: priority },
-    });
-    res.json(tasks);
-  } catch (err) {
-    res.status(400).json({ error: "Unable to get tasks" });
-  }
-});
+//Get all tasks by priority - Has to be redone because ENUM was removed from DB Model
+// router.get("/tasks/s/:priority", auth, async (req, res) => {
+//   const { priority } = req.params;
+//   try {
+//     const tasks = await task.findAll({
+//       where: { user_id: req.user_id, priority: priority },
+//     });
+//     res.json(tasks);
+//   } catch (err) {
+//     res.status(400).json({ error: "Unable to get tasks" });
+//   }
+// });
 
 //Update a task
 router.patch("/tasks/:id", auth, async (req, res) => {
   const { id } = req.params;
-  const { title, description, dueBy, status, priority } = req.body;
+  const { title, description, due_by, status, priority } = req.body;
   try {
-    const task = await Task.findOne({
+    const task = await task.findOne({
       where: { taskId: id, userId: req.userId },
     });
     (task.title = title || task.title),
       (task.description = description || task.description),
-      (task.dueBy = dueBy || task.dueBy),
+      (task.due_by = due_by || task.due_by),
       (task.priority = priority || task.priority),
       (task.status = status || task.status),
       res.status(201).json(task);
@@ -99,11 +99,11 @@ router.patch("/tasks/:id", auth, async (req, res) => {
 router.delete("/tasks/:id", auth, async (req, res) => {
   const { id } = req.params;
   try {
-    const task = await Task.findOne({ where: { id: id } });
-    if (req.userId !== task.userId) {
+    const deleteTask = await task.findOne({ where: { id: id } });
+    if (req.user_id !== task.user_id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    await task.destroy();
+    await deleteTask.destroy();
     res.json({ note: "Task deleted" });
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
