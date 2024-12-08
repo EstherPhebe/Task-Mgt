@@ -1,124 +1,125 @@
-const express = require("express");
 const db = require("../database/models");
-const auth = require("../middleware/auth");
 
-const { User, Task } = db.sequelize.models;
+const { user, task } = db.sequelize.models;
 
-const router = express.Router();
-
-// Create Task
-router.post("/tasks", auth, async (req, res) => {
-  const { title, description, dueBy, status, priority } = req.body;
+//Create Task
+const createTask = async (req, res) => {
+  const { title, description, due_by, status, priority } = req.body;
   try {
-    const task = await Task.create({
+    const newTask = await task.create({
       title,
       description,
-      dueBy,
+      due_by,
       priority,
       status,
-      userId: req.userId,
+      user_id: req.user_id,
     });
-    res.status(201).json(task);
+    res.status(201).json(newTask);
   } catch (err) {
     res.status(400).json({ error: "Unable to create task" });
   }
-});
+};
 
-// Get all tasks for a User
-router.get("/tasks", auth, async (req, res) => {
+//Get all User Tasks
+const getAllTasks = async (req, res) => {
   try {
-    const tasks = await Task.findAll({ where: { userId: req.userId } });
-    console.log(tasks[0].dataValues);
+    const tasks = await task.findAll({ where: { user_id: req.user_id } });
+    // console.log(tasks[0].dataValues); - Looping throught the task object
     res.json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+};
 
-//Get all tasks sorted by date
-router.get("/tasks/s/date", auth, async (req, res) => {
+//Get all User Tasks by Date
+const getTasksbyDate = async (req, res) => {
   try {
-    const tasks = await Task.findAll({
-      order: [["dueBy", "ASC"]],
-      where: { userId: req.userId },
+    const tasks = await task.findAll({
+      order: [["due_by", "ASC"]],
+      where: { user_id: req.user_id },
     });
     res.json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+};
 
-//Get single task
-router.get("/tasks/:id", auth, async (req, res) => {
+//Get single Task
+const getTask = async (req, res) => {
   const { id } = req.params;
   try {
-    const task = await Task.findOne({ where: { id: id } });
-    console.log(`${req.userId} - ${task.userId}`);
-    if (req.userId !== task.userId) {
+    const singleTask = await task.findOne({ where: { id: id } });
+    if (req.user_id !== singleTask.user_id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    res.json(task);
+    res.json(singleTask);
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
   }
-});
+};
 
-//Get all tasks by priority
-router.get("/tasks/s/:priority", auth, async (req, res) => {
-  const { priority } = req.params;
-  try {
-    const tasks = await Task.findAll({
-      where: { userId: req.userId, priority: priority },
-    });
-    res.json(tasks);
-  } catch (err) {
-    res.status(400).json({ error: "Unable to get tasks" });
-  }
-});
-
-//Update a task
-router.patch("/tasks/:id", auth, async (req, res) => {
+//Update a Task
+const updateTask = async (req, res) => {
   const { id } = req.params;
-  const { title, description, dueBy, status, priority } = req.body;
+  const { title, description, due_by, status, priority } = req.body;
   try {
-    const task = await Task.findOne({
+    const task = await task.findOne({
       where: { taskId: id, userId: req.userId },
     });
     (task.title = title || task.title),
       (task.description = description || task.description),
-      (task.dueBy = dueBy || task.dueBy),
+      (task.due_by = due_by || task.due_by),
       (task.priority = priority || task.priority),
       (task.status = status || task.status),
       res.status(201).json(task);
   } catch (err) {
     res.status(400).json({ error: "Unable to edit task" });
   }
-});
+};
 
-//Delete a task
-router.delete("/tasks/:id", auth, async (req, res) => {
+//Delete a Task
+const deleteTask = async (req, res) => {
   const { id } = req.params;
   try {
-    const task = await Task.findOne({ where: { id: id } });
-    if (req.userId !== task.userId) {
+    const deleteTask = await task.findOne({ where: { id: id } });
+    if (req.user_id !== task.user_id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    await task.destroy();
+    await deleteTask.destroy();
     res.json({ note: "Task deleted" });
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
   }
-});
-//
+};
 
-router.get("/users", async (req, res) => {
-  const users = await User.findAll();
-  res.json(users);
-});
+//Get all tasks by priority - Has to be redone because ENUM was removed from DB Model
+// router.get("/tasks/s/:priority", auth, async (req, res) => {
+//   const { priority } = req.params;
+//   try {
+//     const tasks = await task.findAll({
+//       where: { user_id: req.user_id, priority: priority },
+//     });
+//     res.json(tasks);
+//   } catch (err) {
+//     res.status(400).json({ error: "Unable to get tasks" });
+//   }
+// });
 
-router.get("/alltask", async (req, res) => {
-  const all = await Task.findAll();
-  res.json(all);
-});
+// router.get("/users", async (req, res) => {
+//   const users = await User.findAll();
+//   res.json(users);
+// });
 
-module.exports = router;
+// router.get("/alltask", async (req, res) => {
+//   const all = await Task.findAll();
+//   res.json(all);
+// });
+
+module.exports = {
+  createTask,
+  getTask,
+  getAllTasks,
+  getTasksbyDate,
+  updateTask,
+  deleteTask,
+};

@@ -1,50 +1,50 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Tasks', {
+    await queryInterface.createTable("tasks", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       title: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       priority: {
-        type: Sequelize.ENUM('Critical', 'High', 'Medium', 'Low'),
-        defaultValue: 'Low'
+        type: Sequelize.STRING,
+        defaultValue: "low",
       },
-      dueBy: {
-        type: Sequelize.DATEONLY
+      due_by: {
+        type: Sequelize.DATEONLY,
       },
       status: {
-        type: Sequelize.ENUM('To-Do', 'Pending', 'Complete'),
-        defaultValue: 'To-Do'
+        type: Sequelize.STRING,
+        defaultValue: "complete",
       },
-      userId: {
-        allowNull:false,
+      user_id: {
+        allowNull: false,
         type: Sequelize.INTEGER,
         references: {
-          model: 'Users',
-          key: 'id'
-        }
+          model: "users",
+          key: "id",
+        },
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Tasks');
-  }
+    await queryInterface.dropTable("tasks");
+  },
 };

@@ -1,31 +1,36 @@
 module.exports = (sequelize, DataTypes) => {
-  const Task = sequelize.define("Task", {
-    title: {
-      type: DataTypes.STRING,
-      allowNull: false,
+  const task = sequelize.define(
+    "task",
+    {
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.STRING,
+      },
+      due_by: {
+        type: DataTypes.DATEONLY,
+      },
+      priority: {
+        type: DataTypes.STRING,
+        defaultValue: "low",
+      },
+      status: {
+        type: DataTypes.STRING,
+        defaultValue: "complete",
+      },
     },
-    description: {
-      type: DataTypes.STRING,
-    },
-    dueBy: {
-      type: DataTypes.DATEONLY,
-    },
-    priority: {
-      type: DataTypes.ENUM("Critical", "High", "Medium", "Low"),
-      defaultValue: "Low",
-    },
-    status: {
-      type: DataTypes.ENUM("To-Do", "Pending", "Complete"),
-      defaultValue: "To-Do",
-    },
-  });
+    {
+      underscored: true,
+    }
+  );
 
-  Task.associate = (models) => {
-    Task.belongsTo(models.User, {
-      foreignKey: "userId",
-      as: "user",
+  task.associate = (models) => {
+    task.belongsTo(models.user, {
+      foreignKey: "user_id",
     });
   };
 
-  return Task;
+  return task;
 };
