@@ -3,7 +3,7 @@ const cors = require("cors");
 const cookieparser = require("cookie-parser");
 require("dotenv").config();
 const auth = require("./middleware/auth");
-const authenticate = require("./controllers/authenticate");
+const authenticate = require("./routes/authenticate");
 const task = require("./routes/task");
 const { sequelize } = require("./database/models");
 

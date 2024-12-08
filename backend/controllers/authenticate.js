@@ -1,4 +1,3 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../database/models");
@@ -6,9 +5,8 @@ const db = require("../database/models");
 const { user } = db.sequelize.models;
 const ONE_HOUR = 3600000;
 
-const router = express.Router();
-
-router.post("/register", async (req, res) => {
+//Registration
+const register = async (req, res) => {
   const { email, name, password } = req.body;
   try {
     const existingUser = await user.findOne({ where: { email } });
@@ -26,9 +24,10 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+};
 
-router.post("/login", async (req, res) => {
+//Login
+const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userLogin = await user.findOne({ where: { email } });
@@ -40,7 +39,6 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: userLogin.id }, process.env.JWT_SECRET, {
       expiresIn: "2h",
     });
-    console.log(userLogin.id);
 
     res
       .cookie("token", token, {
@@ -53,9 +51,10 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+};
 
-router.post("/logout", async (req, res) => {
+//Logout
+const logout = async (req, res) => {
   res
     .clearCookie("token", {
       maxAge: ONE_HOUR,
@@ -64,6 +63,6 @@ router.post("/logout", async (req, res) => {
     })
     .status(200)
     .json({ message: "You've been logged out" });
-});
+};
 
-module.exports = router;
+module.exports = { register, login, logout };
