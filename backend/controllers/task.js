@@ -1,13 +1,9 @@
-const express = require("express");
 const db = require("../database/models");
-const auth = require("../middleware/auth");
 
 const { user, task } = db.sequelize.models;
 
-const router = express.Router();
-
-// Create Task
-router.post("/tasks", auth, async (req, res) => {
+//Create Task
+const createTask = async (req, res) => {
   const { title, description, due_by, status, priority } = req.body;
   try {
     const newTask = await task.create({
@@ -20,24 +16,23 @@ router.post("/tasks", auth, async (req, res) => {
     });
     res.status(201).json(newTask);
   } catch (err) {
-    console.log(err);
     res.status(400).json({ error: "Unable to create task" });
   }
-});
+};
 
-// Get all tasks for a User
-router.get("/tasks", auth, async (req, res) => {
+//Get all User Tasks
+const getAllTasks = async (req, res) => {
   try {
     const tasks = await task.findAll({ where: { user_id: req.user_id } });
-    console.log(tasks[0].dataValues);
+    // console.log(tasks[0].dataValues); - Looping throught the task object
     res.json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+};
 
-//Get all tasks sorted by date
-router.get("/tasks/s/date", auth, async (req, res) => {
+//Get all User Tasks by Date
+const getTasksbyDate = async (req, res) => {
   try {
     const tasks = await task.findAll({
       order: [["due_by", "ASC"]],
@@ -47,10 +42,10 @@ router.get("/tasks/s/date", auth, async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+};
 
-//Get single task
-router.get("/tasks/:id", auth, async (req, res) => {
+//Get single Task
+const getTask = async (req, res) => {
   const { id } = req.params;
   try {
     const singleTask = await task.findOne({ where: { id: id } });
@@ -61,23 +56,10 @@ router.get("/tasks/:id", auth, async (req, res) => {
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
   }
-});
+};
 
-//Get all tasks by priority - Has to be redone because ENUM was removed from DB Model
-// router.get("/tasks/s/:priority", auth, async (req, res) => {
-//   const { priority } = req.params;
-//   try {
-//     const tasks = await task.findAll({
-//       where: { user_id: req.user_id, priority: priority },
-//     });
-//     res.json(tasks);
-//   } catch (err) {
-//     res.status(400).json({ error: "Unable to get tasks" });
-//   }
-// });
-
-//Update a task
-router.patch("/tasks/:id", auth, async (req, res) => {
+//Update a Task
+const updateTask = async (req, res) => {
   const { id } = req.params;
   const { title, description, due_by, status, priority } = req.body;
   try {
@@ -93,10 +75,10 @@ router.patch("/tasks/:id", auth, async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: "Unable to edit task" });
   }
-});
+};
 
-//Delete a task
-router.delete("/tasks/:id", auth, async (req, res) => {
+//Delete a Task
+const deleteTask = async (req, res) => {
   const { id } = req.params;
   try {
     const deleteTask = await task.findOne({ where: { id: id } });
@@ -108,17 +90,36 @@ router.delete("/tasks/:id", auth, async (req, res) => {
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
   }
-});
-//
+};
 
-router.get("/users", async (req, res) => {
-  const users = await User.findAll();
-  res.json(users);
-});
+//Get all tasks by priority - Has to be redone because ENUM was removed from DB Model
+// router.get("/tasks/s/:priority", auth, async (req, res) => {
+//   const { priority } = req.params;
+//   try {
+//     const tasks = await task.findAll({
+//       where: { user_id: req.user_id, priority: priority },
+//     });
+//     res.json(tasks);
+//   } catch (err) {
+//     res.status(400).json({ error: "Unable to get tasks" });
+//   }
+// });
 
-router.get("/alltask", async (req, res) => {
-  const all = await Task.findAll();
-  res.json(all);
-});
+// router.get("/users", async (req, res) => {
+//   const users = await User.findAll();
+//   res.json(users);
+// });
 
-module.exports = router;
+// router.get("/alltask", async (req, res) => {
+//   const all = await Task.findAll();
+//   res.json(all);
+// });
+
+module.exports = {
+  createTask,
+  getTask,
+  getAllTasks,
+  getTasksbyDate,
+  updateTask,
+  deleteTask,
+};
