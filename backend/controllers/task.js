@@ -1,4 +1,5 @@
 const db = require("../database/models");
+const router = require("../routes/task");
 
 const { user, task } = db.sequelize.models;
 
@@ -22,9 +23,24 @@ const createTask = async (req, res) => {
 
 //Get all User Tasks
 const getAllTasks = async (req, res) => {
+  const { status, priority } = req.query;
   try {
-    const tasks = await task.findAll({ where: { user_id: req.user_id } });
-    // console.log(tasks[0].dataValues); - Looping throught the task object
+    let whereConditon = {};
+
+    if (status || priority) {
+      status && (whereConditon.status = status);
+      priority && (whereConditon.priority = priority);
+    }
+
+    const tasks = await task.findAll({
+      where: {
+        user_id: req.user_id,
+        ...whereConditon,
+      },
+      // order: order, (Come back to this when there is a need to sort by low - high for priority)
+    });
+    console.log({ ...whereConditon }, whereConditon);
+    // console.log(tasks[0].dataValues); - Looping through the task object
     res.json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -57,6 +73,25 @@ const getTask = async (req, res) => {
     res.status(400).json({ err: "Task not found" });
   }
 };
+
+//Sort Task by Priority/Status
+// router.get("/tasks", async (req, res) => {
+//   const { status } = req.query;
+//   let queryParams = {};
+
+//   queryParams.status = status;
+//   console.log(queryParams);
+// });
+// const sortTask = async (req, res) => {
+//   const { sortparam } = req.query
+
+//   sortCondition = {}
+//   if (sortparam){
+//     const route = await task.findAll({
+//       where: {sortparam: sortCondition.sortparam}
+//     })
+//   }
+// }
 
 //Update a Task
 const updateTask = async (req, res) => {
