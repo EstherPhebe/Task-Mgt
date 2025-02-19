@@ -74,25 +74,6 @@ const getTask = async (req, res) => {
   }
 };
 
-//Sort Task by Priority/Status
-// router.get("/tasks", async (req, res) => {
-//   const { status } = req.query;
-//   let queryParams = {};
-
-//   queryParams.status = status;
-//   console.log(queryParams);
-// });
-// const sortTask = async (req, res) => {
-//   const { sortparam } = req.query
-
-//   sortCondition = {}
-//   if (sortparam){
-//     const route = await task.findAll({
-//       where: {sortparam: sortCondition.sortparam}
-//     })
-//   }
-// }
-
 //Update a Task
 const updateTask = async (req, res) => {
   const { id } = req.params;
@@ -126,19 +107,6 @@ const deleteTask = async (req, res) => {
     res.status(400).json({ err: "Task not found" });
   }
 };
-
-//Get all tasks by priority - Has to be redone because ENUM was removed from DB Model
-// router.get("/tasks/s/:priority", auth, async (req, res) => {
-//   const { priority } = req.params;
-//   try {
-//     const tasks = await task.findAll({
-//       where: { user_id: req.user_id, priority: priority },
-//     });
-//     res.json(tasks);
-//   } catch (err) {
-//     res.status(400).json({ error: "Unable to get tasks" });
-//   }
-// });
 
 // router.get("/users", async (req, res) => {
 //   const users = await User.findAll();
