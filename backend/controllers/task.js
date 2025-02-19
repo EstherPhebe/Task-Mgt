@@ -1,4 +1,5 @@
 const db = require("../database/models");
+const router = require("../routes/task");
 
 const { user, task } = db.sequelize.models;
 
@@ -22,9 +23,24 @@ const createTask = async (req, res) => {
 
 //Get all User Tasks
 const getAllTasks = async (req, res) => {
+  const { status, priority } = req.query;
   try {
-    const tasks = await task.findAll({ where: { user_id: req.user_id } });
-    // console.log(tasks[0].dataValues); - Looping throught the task object
+    let whereConditon = {};
+
+    if (status || priority) {
+      status && (whereConditon.status = status);
+      priority && (whereConditon.priority = priority);
+    }
+
+    const tasks = await task.findAll({
+      where: {
+        user_id: req.user_id,
+        ...whereConditon,
+      },
+      // order: order, (Come back to this when there is a need to sort by low - high for priority)
+    });
+    console.log({ ...whereConditon }, whereConditon);
+    // console.log(tasks[0].dataValues); - Looping through the task object
     res.json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -91,19 +107,6 @@ const deleteTask = async (req, res) => {
     res.status(400).json({ err: "Task not found" });
   }
 };
-
-//Get all tasks by priority - Has to be redone because ENUM was removed from DB Model
-// router.get("/tasks/s/:priority", auth, async (req, res) => {
-//   const { priority } = req.params;
-//   try {
-//     const tasks = await task.findAll({
-//       where: { user_id: req.user_id, priority: priority },
-//     });
-//     res.json(tasks);
-//   } catch (err) {
-//     res.status(400).json({ error: "Unable to get tasks" });
-//   }
-// });
 
 // router.get("/users", async (req, res) => {
 //   const users = await User.findAll();
