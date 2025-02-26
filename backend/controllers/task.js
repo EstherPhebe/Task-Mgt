@@ -68,7 +68,7 @@ const getTask = async (req, res) => {
     if (req.user_id !== singleTask.user_id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    res.json(singleTask);
+    res.status(200).json(singleTask);
   } catch (err) {
     res.status(400).json({ err: "Task not found" });
   }
@@ -79,15 +79,18 @@ const updateTask = async (req, res) => {
   const { id } = req.params;
   const { title, description, due_by, status, priority } = req.body;
   try {
-    const task = await task.findOne({
-      where: { taskId: id, userId: req.userId },
+    const getTask = await task.findOne({ where: { id: id } });
+    if (req.user_id !== getTask.user_id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    await getTask.update({
+      title: getTask.title || title,
+      description: getTask.description || description,
+      due_by: getTask.due_by || due_by,
+      priority: getTask.priority || priority,
+      status: getTask.status || status,
     });
-    (task.title = title || task.title),
-      (task.description = description || task.description),
-      (task.due_by = due_by || task.due_by),
-      (task.priority = priority || task.priority),
-      (task.status = status || task.status),
-      res.status(201).json(task);
+    res.status(201).json(task);
   } catch (err) {
     res.status(400).json({ error: "Unable to edit task" });
   }
@@ -97,14 +100,14 @@ const updateTask = async (req, res) => {
 const deleteTask = async (req, res) => {
   const { id } = req.params;
   try {
-    const deleteTask = await task.findOne({ where: { id: id } });
-    if (req.user_id !== task.user_id) {
+    const getdeleteTask = await task.findOne({ where: { id: id } });
+    if (req.user_id !== getdeleteTask.user_id) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-    await deleteTask.destroy();
-    res.json({ note: "Task deleted" });
+    await getdeleteTask.destroy();
+    return res.status(200).json({ note: "Task deleted" });
   } catch (err) {
-    res.status(400).json({ err: "Task not found" });
+    res.status(400).json({ error: "Task not found" });
   }
 };
 

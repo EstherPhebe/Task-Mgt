@@ -1,6 +1,7 @@
 // Import express,define an express router fn, import the controller and create a new instance of router
 const express = require("express");
 const auth = require("../middleware/auth");
+const validateTask = require("../middleware/validateTask.js");
 
 const {
   createTask,
@@ -13,8 +14,10 @@ const {
 
 const router = express.Router();
 
+// console.log("validateTask:", validateTask);
+
 //Create Task
-router.post("/tasks", auth, createTask);
+router.post("/tasks", auth, validateTask, createTask);
 //Get all Tasks
 router.get("/tasks", auth, getAllTasks);
 //Get Single Task
