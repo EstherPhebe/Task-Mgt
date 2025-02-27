@@ -1,7 +1,14 @@
 const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
-  const token = req.header("cookie").replace("token=", "");
+  const cookieHeader = req.header("cookie");
+  if (!cookieHeader) {
+    return res.status(401).json({
+      error: "Unauthorized",
+      msg: "Login to continue",
+    });
+  }
+  const token = cookieHeader.replace("token=", "");
   // const token = req.cookies.token; - using the cookie-parser package
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
