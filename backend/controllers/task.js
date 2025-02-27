@@ -37,9 +37,8 @@ const getAllTasks = async (req, res) => {
         user_id: req.user_id,
         ...whereConditon,
       },
-      // order: order, (Come back to this when there is a need to sort by low - high for priority)
+      order: [["created_at", "ASC"]],
     });
-    console.log({ ...whereConditon }, whereConditon);
     // console.log(tasks[0].dataValues); - Looping through the task object
     res.json(tasks);
   } catch (err) {
@@ -84,13 +83,13 @@ const updateTask = async (req, res) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
     await getTask.update({
-      title: getTask.title || title,
-      description: getTask.description || description,
-      due_by: getTask.due_by || due_by,
-      priority: getTask.priority || priority,
-      status: getTask.status || status,
+      title: title || getTask.title,
+      description: description || getTask.description,
+      due_by: due_by || getTask.due_by,
+      priority: priority || getTask.priority,
+      status: status || getTask.status,
     });
-    res.status(201).json(task);
+    res.status(201).json(getTask);
   } catch (err) {
     res.status(400).json({ error: "Unable to edit task" });
   }
