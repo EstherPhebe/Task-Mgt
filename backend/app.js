@@ -7,7 +7,6 @@ const { limiter } = require("./middleware/ratelimit");
 const authenticate = require("./routes/authenticate");
 const task = require("./routes/task");
 const user = require("./routes/user");
-const { limiter } = require("express-rate-limit");
 
 const app = express();
 
