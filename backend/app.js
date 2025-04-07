@@ -7,8 +7,7 @@ const { limiter } = require("./middleware/ratelimit");
 const authenticate = require("./routes/authenticate");
 const task = require("./routes/task");
 const user = require("./routes/user");
-const { sequelize } = require("./database/models");
-const { default: rateLimit } = require("express-rate-limit");
+const { limiter } = require("express-rate-limit");
 
 const app = express();
 
