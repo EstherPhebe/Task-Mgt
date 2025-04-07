@@ -3,18 +3,27 @@ const cors = require("cors");
 const cookieparser = require("cookie-parser");
 require("dotenv").config();
 const auth = require("./middleware/auth");
+const { limiter } = require("./middleware/ratelimit");
 const authenticate = require("./routes/authenticate");
 const task = require("./routes/task");
+const user = require("./routes/user");
 const { sequelize } = require("./database/models");
+const { default: rateLimit } = require("express-rate-limit");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000", //Talks to frontend URL
+    credentials: true, // Allow cookies to be sent
+  })
+);
 app.use(cookieparser());
 app.use(express.json());
+app.use(limiter);
 app.use("/auth", authenticate);
 app.use(auth);
-app.use("/api", task);
+app.use("/api", task, user);
 
 const port = process.env.PORT;
 

@@ -5,17 +5,19 @@ const {
   validateUserLoginSchema,
   validateUser,
 } = require("../middleware/validateUser");
+const { limiter } = require("../middleware/ratelimit");
 
 const router = express.Router();
 
 //Registration
 router.post(
   "/register",
+  limiter,
   [validateUserRegistrationSchema, validateUser],
   register
 );
 //Login
-router.post("/login", [validateUserLoginSchema, validateUser], login);
+router.post("/login", [validateUserLoginSchema, validateUser], limiter, login);
 // Logout
 router.post("/logout", logout);
 

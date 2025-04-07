@@ -41,7 +41,7 @@ const getAllTasks = async (req, res) => {
       order: [["created_at", "ASC"]],
     });
     // console.log(tasks[0].dataValues); - Looping through the task object
-    res.json(tasks);
+    res.status(200).json(tasks);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
